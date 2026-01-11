@@ -1,880 +1,925 @@
 {
-  "info": {
-    "_postman_id": "c2b0324f-0677-4f05-9f14-8e44205a8f58",
-    "name": "MRP API (Clean Reset)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "1. Auth",
-      "item": [
-        {
-          "name": "Register",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/users/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "users",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Login successful', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "const data = pm.response.json();",
-                  "if (data && data.token) {",
-                  "    pm.collectionVariables.set('token', data.token);",
-                  "} else {",
-                  "    pm.collectionVariables.unset('token');",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/users/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "users",
-                "login"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "2. Media",
-      "item": [
-        {
-          "name": "Create Media",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Media created', function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "const payload = pm.response.json();",
-                  "if (payload && payload.id) {",
-                  "    pm.collectionVariables.set('mediaId', payload.id);",
-                  "} else {",
-                  "    pm.collectionVariables.unset('mediaId');",
-                  "}"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const payload = pm.response.json();",
-                  "if (payload && payload.id) {",
-                  "    pm.collectionVariables.set('mediaId', payload.id);",
-                  "} else {",
-                  "    pm.collectionVariables.unset('mediaId');",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"{{mediaTitle}}\",\n  \"description\": \"{{mediaDescription}}\",\n  \"mediaType\": \"{{mediaType}}\",\n  \"releaseYear\": {{releaseYear}},\n  \"ageRestriction\": \"{{ageRestriction}}\",\n  \"genres\": {{mediaGenres}}\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/media",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "media"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Media by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "media",
-                "1"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('mediaId')) {",
-                  "    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Update Media",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"{{mediaTitle}}\",\n  \"description\": \"{{mediaDescription}} (updated)\",\n  \"mediaType\": \"{{mediaType}}\",\n  \"releaseYear\": {{releaseYear}},\n  \"ageRestriction\": \"{{ageRestriction}}\",\n  \"genres\": {{mediaGenres}}\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/media/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "media",
-                "1"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('mediaId')) {",
-                  "    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Delete Media",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "media",
-                "1"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('mediaId')) {",
-                  "    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Search Media",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/media",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "media"
-              ],
-              "query": [
-                {
-                  "key": "title",
-                  "value": "{{searchTitle}}"
-                },
-                {
-                  "key": "genre",
-                  "value": "{{searchGenre}}"
-                },
-                {
-                  "key": "mediaType",
-                  "value": "{{searchType}}"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Add Favorite",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/1/favorites",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "media",
-                "1",
-                "favorites"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('mediaId')) {",
-                  "    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Remove Favorite",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/1/favorites",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "media",
-                "1",
-                "favorites"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('mediaId')) {",
-                  "    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Recommendations",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/recommendations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "media",
-                "recommendations"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "3. Ratings",
-      "item": [
-        {
-          "name": "Create Rating",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('mediaId')) {",
-                  "    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Rating created', function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "const payload = pm.response.json();",
-                  "if (payload && payload.id) {",
-                  "    pm.collectionVariables.set('ratingId', payload.id);",
-                  "} else {",
-                  "    pm.collectionVariables.unset('ratingId');",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"starValue\": {{ratingStars}},\n  \"comment\": \"{{ratingComment}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/ratings/media/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "ratings",
-                "media",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Ratings for Media",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('mediaId')) {",
-                  "    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/ratings/media/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "ratings",
-                "media",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Update Rating",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('ratingId')) {",
-                  "    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/ratings/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "ratings",
-                "1"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"starValue\": {{ratingStars}},\n  \"comment\": \"{{ratingComment}} (updated)\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Delete Rating",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('ratingId')) {",
-                  "    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/ratings/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "ratings",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Confirm Comment",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('ratingId')) {",
-                  "    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/ratings/1/confirm",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "ratings",
-                "1",
-                "confirm"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Like Rating",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('ratingId')) {",
-                  "    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/ratings/1/likes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "ratings",
-                "1",
-                "likes"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Unlike Rating",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (!pm.collectionVariables.get('ratingId')) {",
-                  "    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausf\u00fchren.');",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/ratings/1/likes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "ratings",
-                "1",
-                "likes"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "4. Users",
-      "item": [
-        {
-          "name": "Profile",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/users/{{username}}/profile",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "users",
-                "{{username}}",
-                "profile"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Rating History",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/users/{{username}}/ratings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "users",
-                "{{username}}",
-                "ratings"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Favorites (User)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/users/{{username}}/favorites",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "users",
-                "{{username}}",
-                "favorites"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Leaderboard",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/users/leaderboard?limit={{leaderboardLimit}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "users",
-                "leaderboard"
-              ],
-              "query": [
-                {
-                  "key": "limit",
-                  "value": "{{leaderboardLimit}}"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080"
-    },
-    {
-      "key": "username",
-      "value": "demoUser"
-    },
-    {
-      "key": "password",
-      "value": "demoPass123"
-    },
-    {
-      "key": "token",
-      "value": ""
-    },
-    {
-      "key": "mediaTitle",
-      "value": "Demo Media"
-    },
-    {
-      "key": "mediaDescription",
-      "value": "Demo description"
-    },
-    {
-      "key": "mediaType",
-      "value": "Movie"
-    },
-    {
-      "key": "releaseYear",
-      "value": "2020"
-    },
-    {
-      "key": "ageRestriction",
-      "value": "PG-13"
-    },
-    {
-      "key": "mediaGenres",
-      "value": "[\"Adventure\",\"Action\"]"
-    },
-    {
-      "key": "mediaId",
-      "value": "1"
-    },
-    {
-      "key": "ratingStars",
-      "value": "5"
-    },
-    {
-      "key": "ratingComment",
-      "value": "Really nice!"
-    },
-    {
-      "key": "ratingId",
-      "value": "1"
-    },
-    {
-      "key": "searchTitle",
-      "value": "Demo"
-    },
-    {
-      "key": "searchGenre",
-      "value": "Adventure"
-    },
-    {
-      "key": "searchType",
-      "value": "Movie"
-    },
-    {
-      "key": "leaderboardLimit",
-      "value": "5"
-    }
-  ],
-  "event": []
+	"info": {
+		"_postman_id": "6964c211-cb68-48c3-ac66-f7223290492a",
+		"name": "MRP API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49296406"
+	},
+	"item": [
+		{
+			"name": "1. Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Login successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const data = pm.response.json();",
+									"if (data && data.token) {",
+									"    pm.collectionVariables.set('token', data.token);",
+									"} else {",
+									"    pm.collectionVariables.unset('token');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Media",
+			"item": [
+				{
+					"name": "Create Media",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Media created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"const payload = pm.response.json();",
+									"if (payload && payload.id) {",
+									"    pm.collectionVariables.set('mediaId', payload.id);",
+									"} else {",
+									"    pm.collectionVariables.unset('mediaId');",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const payload = pm.response.json();",
+									"if (payload && payload.id) {",
+									"    pm.collectionVariables.set('mediaId', payload.id);",
+									"} else {",
+									"    pm.collectionVariables.unset('mediaId');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"{{mediaTitle}}\",\n  \"description\": \"{{mediaDescription}}\",\n  \"mediaType\": \"{{mediaType}}\",\n  \"releaseYear\": {{releaseYear}},\n  \"ageRestriction\": \"{{ageRestriction}}\",\n  \"genres\": {{mediaGenres}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/media",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Media by ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('mediaId')) {",
+									"    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/media/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Media",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('mediaId')) {",
+									"    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"{{mediaTitle}}\",\n  \"description\": \"{{mediaDescription}} (updated)\",\n  \"mediaType\": \"{{mediaType}}\",\n  \"releaseYear\": {{releaseYear}},\n  \"ageRestriction\": \"{{ageRestriction}}\",\n  \"genres\": {{mediaGenres}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/media/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Media",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/media?title={{searchTitle}}&genre={{searchGenre}}&mediaType={{searchType}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "{{searchTitle}}"
+								},
+								{
+									"key": "genre",
+									"value": "{{searchGenre}}"
+								},
+								{
+									"key": "mediaType",
+									"value": "{{searchType}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Favorite",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('mediaId')) {",
+									"    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/media/1/favorites",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media",
+								"1",
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Favorite",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('mediaId')) {",
+									"    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/media/1/favorites",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media",
+								"1",
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Recommendations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/media/recommendations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media",
+								"recommendations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Media",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('mediaId')) {",
+									"    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/media/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"media",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Ratings",
+			"item": [
+				{
+					"name": "Create Rating",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('mediaId')) {",
+									"    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausführen.');",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rating created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"const payload = pm.response.json();",
+									"if (payload && payload.id) {",
+									"    pm.collectionVariables.set('ratingId', payload.id);",
+									"} else {",
+									"    pm.collectionVariables.unset('ratingId');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"starValue\": {{ratingStars}},\n  \"comment\": \"{{ratingComment}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ratings/media/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ratings",
+								"media",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Ratings for Media",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('mediaId')) {",
+									"    throw new Error('mediaId fehlt. Bitte zuerst \"Create Media\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/ratings/media/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ratings",
+								"media",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rating",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('ratingId')) {",
+									"    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"starValue\": {{ratingStars}},\n  \"comment\": \"{{ratingComment}} (updated)\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ratings/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ratings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Comment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('ratingId')) {",
+									"    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/ratings/1/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ratings",
+								"1",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Like Rating",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('ratingId')) {",
+									"    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/ratings/1/likes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ratings",
+								"1",
+								"likes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unlike Rating",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('ratingId')) {",
+									"    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/ratings/1/likes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ratings",
+								"1",
+								"likes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rating",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.collectionVariables.get('ratingId')) {",
+									"    throw new Error('ratingId fehlt. Bitte zuerst \"Create Rating\" ausführen.');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/ratings/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ratings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Users",
+			"item": [
+				{
+					"name": "Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{username}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{username}}",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rating History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{username}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{username}}",
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Favorites (User)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{username}}/favorites",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{username}}",
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Leaderboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/leaderboard?limit={{leaderboardLimit}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"leaderboard"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "{{leaderboardLimit}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "username",
+			"value": "demoUser"
+		},
+		{
+			"key": "password",
+			"value": "demoPass123"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "mediaTitle",
+			"value": "Demo Media"
+		},
+		{
+			"key": "mediaDescription",
+			"value": "Demo description"
+		},
+		{
+			"key": "mediaType",
+			"value": "Movie"
+		},
+		{
+			"key": "releaseYear",
+			"value": "2020"
+		},
+		{
+			"key": "ageRestriction",
+			"value": "PG-13"
+		},
+		{
+			"key": "mediaGenres",
+			"value": "[\"Adventure\",\"Action\"]"
+		},
+		{
+			"key": "mediaId",
+			"value": "1"
+		},
+		{
+			"key": "ratingStars",
+			"value": "5"
+		},
+		{
+			"key": "ratingComment",
+			"value": "Really nice!"
+		},
+		{
+			"key": "ratingId",
+			"value": "1"
+		},
+		{
+			"key": "searchTitle",
+			"value": "Demo"
+		},
+		{
+			"key": "searchGenre",
+			"value": "Adventure"
+		},
+		{
+			"key": "searchType",
+			"value": "Movie"
+		},
+		{
+			"key": "leaderboardLimit",
+			"value": "5"
+		}
+	]
 }
