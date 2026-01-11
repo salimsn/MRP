@@ -67,10 +67,3 @@ Es existieren mehr als zwanzig Unit-Tests für Benutzer-, Medien-, Profil- und S
 ```bash
 mvn test
 ```
-
-Hinweis: Beim ersten Lauf müssen Maven-Abhängigkeiten geladen werden.
-
-## Offene Punkte
-- Maven-Wrapper oder vorkonfigurierte lokale Repository-Einstellungen ergänzen.
-- Token laufen nie ab und überleben Serverneustarts nicht.
-- Konfigurierbare Datenbankzugänge, HTTPS und weitere Sicherheitsmaßnahmen fehlen.
