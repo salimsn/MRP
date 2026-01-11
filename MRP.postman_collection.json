@@ -1,93 +1,466 @@
 {
-	"info": {
-		"_postman_id": "640f2e13-f0aa-4df3-98b9-588ab6d590be",
-		"name": "MRP",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "49296406",
-		"_collection_link": "https://if24b257-1942926.postman.co/workspace/Abdussalim-Sen's-Workspace~008ee48b-c8e9-4070-8e54-317aad3da916/collection/49296406-640f2e13-f0aa-4df3-98b9-588ab6d590be?action=share&source=collection_link&creator=49296406"
-	},
-	"item": [
-		{
-			"name": "register",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
-		},
-		{
-			"name": "login",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
-		},
-		{
-			"name": "createMedia",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
-		},
-		{
-			"name": "getMedia",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
-		},
-		{
-			"name": "createRating",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
-		},
-		{
-			"name": "getRating",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"requests": {},
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"requests": {},
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": ""
-		},
-		{
-			"key": "baseToken",
-			"value": ""
-		}
-	]
+  "info": {
+    "_postman_id": "f2f1e5c3-0c2f-4d57-92a2-1d4f9b9ef001",
+    "name": "MRP API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"demoPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"demoPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Media",
+      "item": [
+        {
+          "name": "Search Media",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/media?title=inception&minRating=3.5&sort=score&direction=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media"],
+              "query": [
+                {"key": "title", "value": "inception"},
+                {"key": "minRating", "value": "3.5"},
+                {"key": "sort", "value": "score"},
+                {"key": "direction", "value": "desc"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Media",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Inception\",\n  \"description\": \"Mind-bending thriller\",\n  \"mediaType\": \"Movie\",\n  \"releaseYear\": 2010,\n  \"ageRestriction\": \"PG-13\",\n  \"genres\": [\"Sci-Fi\", \"Thriller\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/media",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media"]
+            }
+          }
+        },
+        {
+          "name": "Get Media Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/media/{{mediaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media", "{{mediaId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Media",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{mediaId}},\n  \"title\": \"Inception (Director's Cut)\",\n  \"description\": \"Updated description\",\n  \"mediaType\": \"Movie\",\n  \"releaseYear\": 2010,\n  \"ageRestriction\": \"PG-13\",\n  \"genres\": [\"Sci-Fi\", \"Thriller\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/media/{{mediaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media", "{{mediaId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Media",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/media/{{mediaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media", "{{mediaId}}"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Favorite",
+          "item": [
+            {
+              "name": "Mark Favorite",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/media/{{mediaId}}/favorites",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "media", "{{mediaId}}", "favorites"]
+                }
+              }
+            },
+            {
+              "name": "Unmark Favorite",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/media/{{mediaId}}/favorites",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "media", "{{mediaId}}", "favorites"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/media/recommendations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "media", "recommendations"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ratings",
+      "item": [
+        {
+          "name": "Create Rating",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"starValue\": 5,\n  \"comment\": \"Fantastic!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ratings/media/{{mediaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ratings", "media", "{{mediaId}}"]
+            }
+          }
+        },
+        {
+          "name": "List Ratings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ratings/media/{{mediaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ratings", "media", "{{mediaId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Rating",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{ratingId}},\n  \"starValue\": 4,\n  \"comment\": \"Still good!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ratings/{{ratingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ratings", "{{ratingId}}"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ratings/{{ratingId}}/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ratings", "{{ratingId}}", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "Like Rating",
+          "item": [
+            {
+              "name": "Like",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/ratings/{{ratingId}}/likes",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "ratings", "{{ratingId}}", "likes"]
+                }
+              }
+            },
+            {
+              "name": "Unlike",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/ratings/{{ratingId}}/likes",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "ratings", "{{ratingId}}", "likes"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{username}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{username}}", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Rating History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{username}}/ratings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{username}}", "ratings"]
+            }
+          }
+        },
+        {
+          "name": "Favorites List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{username}}/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{username}}", "favorites"]
+            }
+          }
+        },
+        {
+          "name": "Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/leaderboard?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "leaderboard"],
+              "query": [
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "username",
+      "value": "demo"
+    },
+    {
+      "key": "mediaId",
+      "value": "1"
+    },
+    {
+      "key": "ratingId",
+      "value": "1"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
 }

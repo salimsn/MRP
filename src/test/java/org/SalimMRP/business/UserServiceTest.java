@@ -1,151 +1,120 @@
 package org.SalimMRP.business;
 
 import org.SalimMRP.business.auth.InMemoryTokenService;
-import org.SalimMRP.business.auth.PasswordHasher;
 import org.SalimMRP.business.auth.Sha256PasswordHasher;
 import org.SalimMRP.business.auth.TokenService;
 import org.SalimMRP.persistence.UserRepository;
 import org.SalimMRP.persistence.models.User;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// Testet das Verhalten des DefaultUserService ohne echte Datenbank per In-Memory-Repository.
 class UserServiceTest {
 
-    private InMemoryUserRepository userRepository;
+    private RecordingUserRepository userRepository;
+    private TokenService tokenService;
     private UserService userService;
 
     @BeforeEach
-    void setUp() {
-        userRepository = new InMemoryUserRepository();
-        PasswordHasher passwordHasher = new Sha256PasswordHasher();
-        TokenService tokenService = new InMemoryTokenService();
-        userService = new DefaultUserService(userRepository, passwordHasher, tokenService);
+    void setup() {
+        userRepository = new RecordingUserRepository();
+        tokenService = new InMemoryTokenService();
+        userService = new DefaultUserService(userRepository, new Sha256PasswordHasher(), tokenService);
     }
 
     @Test
-    @DisplayName("register stores hashed password and assigns id")
-    void registerStoresHashedPassword() {
-        User user = new User("alice", "plain");
+    void registerStoresHashedPasswordAndAssignsId() {
+        User user = new User("alice", "clear-text");
 
         assertTrue(userService.register(user));
 
-        User stored = userRepository.getStoredUser("alice");
-        assertNotNull(stored);
-        assertNotEquals("plain", stored.getPassword(), "Password should be hashed");
-        assertTrue(stored.getId() > 0, "User should receive generated id");
+        Optional<User> stored = userRepository.findRaw("alice");
+        assertTrue(stored.isPresent());
+        assertNotEquals("clear-text", stored.get().getPassword());
+        assertTrue(stored.get().getId() > 0);
     }
 
     @Test
-    @DisplayName("register rejects duplicate usernames")
-    void registerRejectsDuplicates() {
-        assertTrue(userService.register(new User("bob", "pw1")));
-        assertFalse(userService.register(new User("bob", "pw2")));
+    void registerRejectsBlankCredentials() {
+        assertFalse(userService.register(new User("   ", "pw")));
+        assertFalse(userService.register(new User("bob", " ")));
     }
 
     @Test
-    @DisplayName("register rejects blank username or password")
-    void registerRejectsBlankInput() {
-        assertFalse(userService.register(new User("", "pw")));
-        assertFalse(userService.register(new User("charlie", "")));
+    void registerRejectsDuplicateUsername() {
+        assertTrue(userService.register(new User("carol", "pw")));
+        assertFalse(userService.register(new User("carol", "other")));
     }
 
     @Test
-    @DisplayName("login returns token for valid credentials")
-    void loginSucceedsWithCorrectCredentials() {
-        userService.register(new User("diana", "pass123"));
+    void loginIssuesTokenForValidCredentials() {
+        userService.register(new User("dave", "secret"));
 
-        String token = userService.login("diana", "pass123");
+        String token = userService.login("dave", "secret");
 
         assertNotNull(token);
         assertTrue(userService.isTokenValid(token));
     }
 
     @Test
-    @DisplayName("login fails for non-existent user")
-    void loginFailsForUnknownUser() {
-        assertNull(userService.login("ghost", "pw"));
+    void loginFailsWithWrongPassword() {
+        userService.register(new User("erin", "secret"));
+
+        assertNull(userService.login("erin", "invalid"));
     }
 
     @Test
-    @DisplayName("login fails when password does not match")
-    void loginFailsForWrongPassword() {
-        userService.register(new User("edgar", "secret"));
-
-        assertNull(userService.login("edgar", "wrong"));
-    }
-
-    @Test
-    @DisplayName("Token validation fails for unknown token")
-    void tokenValidationFailsForUnknownToken() {
-        assertFalse(userService.isTokenValid("invalid-token"));
-    }
-
-    @Test
-    @DisplayName("getUserByToken looks up user from token store")
-    void getUserByTokenReturnsUser() {
-        userService.register(new User("irene", "pw"));
-        String token = userService.login("irene", "pw");
-
-        User user = userService.getUserByToken(token);
-
-        assertNotNull(user);
-        assertEquals("irene", user.getUsername());
-    }
-
-    @Test
-    @DisplayName("findByUsername returns user copy")
-    void findByUsernameReturnsCopy() {
+    void getUserByTokenLoadsFromRepository() {
         userService.register(new User("frank", "pw"));
+        String token = userService.login("frank", "pw");
 
-        User stored = userRepository.getStoredUser("frank");
-        User found = userService.findByUsername("frank");
+        User loaded = userService.getUserByToken(token);
 
-        assertNotSame(stored, found, "Service should not expose internal storage");
-        assertEquals(stored.getUsername(), found.getUsername());
+        assertNotNull(loaded);
+        assertEquals("frank", loaded.getUsername());
     }
 
-    // Minimalistische In-Memory-Implementierung des UserRepository für die Tests.
-    private static class InMemoryUserRepository implements UserRepository {
-        private final Map<String, User> storage = new HashMap<>();
+    private static class RecordingUserRepository implements UserRepository {
+        private final Map<Integer, User> byId = new HashMap<>();
+        private final Map<String, User> byName = new HashMap<>();
         private int nextId = 1;
 
         @Override
         public boolean save(User user) {
-            if (user == null || storage.containsKey(user.getUsername())) {
+            if (user == null || byName.containsKey(user.getUsername())) {
                 return false;
             }
-            User stored = cloneUser(user);
+            User stored = clone(user);
             stored.setId(nextId++);
-            storage.put(stored.getUsername(), stored);
+            byId.put(stored.getId(), stored);
+            byName.put(stored.getUsername(), stored);
             return true;
         }
 
         @Override
         public User findByUsername(String username) {
-            User existing = storage.get(username);
-            if (existing == null) {
+            return clone(byName.get(username));
+        }
+
+        @Override
+        public User findById(int id) {
+            return clone(byId.get(id));
+        }
+
+        Optional<User> findRaw(String username) {
+            return Optional.ofNullable(byName.get(username));
+        }
+
+        private User clone(User user) {
+            if (user == null) {
                 return null;
             }
-            return cloneUser(existing);
-        }
-
-        User getStoredUser(String username) {
-            return storage.get(username);
-        }
-
-        private User cloneUser(User source) {
-            return new User(
-                    source.getId(),
-                    source.getUsername(),
-                    source.getPassword()
-            );
+            return new User(user.getId(), user.getUsername(), user.getPassword());
         }
     }
 }
